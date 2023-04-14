@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}">
+  <head>
+    <meta charset="UTF-8" th:remove="tag">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1>ユーザ一覧</h1>
+      <table class="table table-striped mt-4">
+        <thead class="bg-primary text-white">
+          <tr>
+            <th>ID</th>
+            <th>メールアドレス</th>
+            <th>作成日時</th>
+            <th>更新日時</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="user: ${users}" th:object="${user}">
+            <td th:text="*{id}"></td>
+            <td th:text="*{email}"></td>
+            <td th:text="*{#dates.format(createdAt, 'yyyy年MM月dd日HH時mm分ss秒')}"></td>
+            <td th:text="*{#dates.format(modifiedAt, 'yyyy年MM月dd日HH時mm分ss秒')}"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </body>
+</html>

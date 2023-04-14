@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}">
+  <head>
+    <meta charset="UTF-8" th:remove="tag">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1>ダッシュボード</h1>
+      <ul th:each="link: ${links}" th:object="${link}" class="list-group">
+        <li>
+          <a th:href="*{key}" th:text="*{value}" class="list-group-item list-group-item-action"></a>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>

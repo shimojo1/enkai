@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}">
+  <head>
+    <meta charset="UTF-8" th:remove="tag">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <form th:action="@{/admin/events/create}" th:object="${event}" method="post">
+        <ul th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
+          <li th:each="err : ${#fields.errors('*')}">
+            <span th:text="${err}"></span>
+          </li>
+        </ul>
+        <h1 class="page-header">イベント新規登録</h1>
+        <div class="form-group" th:classappend="${#fields.hasErrors('name')} ? error">
+          <label for="name">Name</label>
+          <input class="form-control" type="text" id="name" th:field="*{name}">
+        </div>
+        <div class="form-group" th:classappend="${#fields.hasErrors('detail')} ? error">
+          <label for="detail">Detail</label>
+          <input class="form-control" type="text" id="detail" th:field="*{detail}">
+        </div>
+        <div class="form-group" th:classappend="${#fields.hasErrors('maxParticipant')} ? error">
+          <label for="maxParticipant">Max Participant</label>
+          <input class="form-control" type="text" id="maxParticipant" th:field="*{maxParticipant}">
+        </div>
+        <div class="form-group">
+          <label for="user">User</label>
+          <select class="form-control" th:field="*{user}">
+            <th:block th:each="user : ${@userRepository.findAll()}">
+              <option th:value="${user.id}" th:text="${user.email}"></option>
+            </th:block>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="category">Category</label>
+          <select class="form-control" th:field="*{category}">
+            <th:block th:each="category : ${@categoryRepository.findAll()}">
+              <option th:value="${category.id}" th:text="${category.name}"></option>
+            </th:block>
+          </select>
+        </div>
+      	<div>
+          <input class="btn btn-primary" type="submit" value="登録">
+      	</div>
+      </form>
+    </div>
+  </body>
+</html>

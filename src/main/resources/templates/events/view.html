@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}">
+  <head>
+    <meta charset="UTF-8" th:remove="tag">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1>イベント詳細</h1>
+      <table class="table table-striped mt-4">
+        <thead class="bg-primary text-white">
+          <tr>
+            <th>ID</th>
+            <th>イベント名</th>
+            <th>最大参加者数</th>
+            <th>カテゴリ</th>
+            <th>管理ユーザ</th>
+            <th>作成日時</th>
+            <th>更新日時</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:object="${event}">
+            <td th:text="*{id}"></td>
+            <td th:text="*{name}"></td>
+            <td th:text="*{maxParticipant}"></td>
+            <td th:text="*{category.name}"></td>
+            <td th:text="*{user.email}"></td>
+            <td th:text="*{#dates.format(createdAt, 'yyyy年MM月dd日HH時mm分ss秒')}"></td>
+            <td th:text="*{#dates.format(modifiedAt, 'yyyy年MM月dd日HH時mm分ss秒')}"></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="bg-info text-center py-2">
+        <span th:text="'現在の参加者数：' + ${event.eventUsers.size()} + '名'" class="h3 px-3"></span>
+      </div>
+      <div sec:authorize="!authenticated" class="text-center my-3">
+        <a th:href="@{/users/login}" class="btn btn-primary">ログイン</a>
+      </div>
+      <div sec:authorize="authenticated" class="my-3">
+        <h1>イベント参加者</h1>
+        <table class="table table-striped mt-4">
+          <thead class="bg-primary text-white">
+            <tr>
+              <th>ユーザID</th>
+              <th>ユーザ名</th>
+              <th>作成日時</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="eventUser: ${event.eventUsers}" th:object="${eventUser}">
+              <td th:text="*{user.id}"></td>
+              <td th:text="*{user.email}"></td>
+              <td th:text="*{#dates.format(createdAt, 'yyyy年MM月dd日HH時mm分ss秒')}"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div th:if="${isParticipated}" class="text-center">
+          <a th:href="@{/admin/chats/talk/{id}(id=${event.id})}" class="btn btn-primary">チャットに参加する</a>
+          <a th:href="@{/admin/eventusers/delete/{id}(id=${event.id})}" class="btn btn-danger">辞退する</a>
+        </div>
+        <div th:if="!${isParticipated}" class="text-center">
+          <a th:href="@{/admin/eventusers/create/{id}(id=${event.id})}" class="btn btn-primary">参加する</a>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

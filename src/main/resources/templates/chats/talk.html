@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}">
+  <head>
+    <meta charset="UTF-8" th:remove="tag">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <h1>カテゴリ一覧</h1>
+        <th:block th:each="c: ${chats}" th:object="${c}">
+          <div th:class="'chat ' + (*{user.id} == ${user.id} ? 'right' : 'left')">
+            <div th:text="*{user.email}"></div>
+            <div th:text="*{body}"></div>
+            <div th:text="*{#dates.format(createdAt, 'yyyy年MM月dd日HH時mm分ss秒')}"></div>
+          </div>
+        </th:block>
+        <div class="">
+          <form th:action="@{/admin/chats/talk/{id}(id=${eventId})}" th:object="${chat}" method="post">
+            <ul th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
+              <li th:each="err : ${#fields.errors('*')}">
+                <span th:text="${err}"></span>
+              </li>
+            </ul>
+            <div class="form-group" th:classappend="${#fields.hasErrors('body')} ? error">
+              <label for="body">Body</label>
+              <input class="form-control" type="text" id="body" th:field="*{body}">
+            </div>
+          	<div>
+              <input class="btn btn-primary" type="submit" value="登録">
+          	</div>
+          </form>
+        </div>
+    </div>
+  </body>
+</html>

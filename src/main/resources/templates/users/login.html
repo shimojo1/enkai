@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout" layout:decorate="~{layout/layout}" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+  <head>
+    <meta charset="UTF-8" th:remove="tag">
+    <style>
+    </style>
+  </head>
+  <body>
+    <div layout:fragment="content">
+      <form th:action="@{/users/login}" th:object="${user}" method="post">
+        <div class="form-group" th:if="${param.error}">
+          <div class="alert alert-danger" role="alert">
+            <span>メールアドレスまたはパスワードが一致しません</span>
+          </div>
+        </div>
+        <div class="form-group" th:if="${param.logout}">
+          <div class="alert alert-success" role="alert">
+            <span>ログアウトしました</span>
+          </div>
+        </div>
+        <h1 class="page-header">ログイン</h1>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input class="form-control" type="text" id="username" name="username" autofocus="autofocus">
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input class="form-control" type="password" id="password" name="password">
+        </div>
+        <div>
+          <input class="btn btn-primary" type="submit" value="ログイン">
+        </div>
+      </form>
+    </div>
+  </body>
+</html>

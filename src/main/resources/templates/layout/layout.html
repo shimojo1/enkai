@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>宴会くん</title>
+    <link th:href="@{/css/app.css}" rel="stylesheet">
+    <link th:href="@{/css/style.css}" rel="stylesheet">
+    <link th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" rel="stylesheet">
+    <link th:href="@{/webjars/bootstrap-icons/font/bootstrap-icons.css}" rel="stylesheet">
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-md navbar-light bg-light shadow-sm">
+      <div class="container-fluid col-sm-10">
+        <div class="navbar-header">
+          <a th:href="@{/}" class="navbar-brand">宴会くん</a>
+        </div>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse justify-content-between" id="navbarSupportedContent">
+          <ul sec:authorize="!authenticated" class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+              <a th:href="@{/users/create}" class="nav-link">ユーザ登録</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a th:href="@{/users/login}" class="nav-link">ログイン</a>
+            </li>
+          </ul>
+          <ul sec:authorize="authenticated" class="navbar-nav mr-auto">
+            <li class="nav-item dropdown">
+              <a href="javascript:void(0)" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">イベント</a>
+              <ul class="dropdown-menu">
+                <li><a th:href="@{/admin/events/mylist}" class="nav-link">マイイベント一覧</a></li>
+                <li><a th:href="@{/admin/events/create}" class="nav-link">新規登録</a></li>
+              </ul>
+            </li>
+            <li class="nav-item dropdown">
+              <a href="javascript:void(0)" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">カテゴリ</a>
+              <ul class="dropdown-menu">
+                <li><a th:href="@{/admin/categories}" class="nav-link">一覧</a></li>
+                <li><a th:href="@{/admin/categories/create}" class="nav-link">新規作成</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul sec:authorize="authenticated" class="navbar-nav ml-auto">
+            <li class="navbar-text mr-3"><span sec:authentication="name" class="pr-1"></span> さん</li>
+            <li class="nav-item dropdown">
+              <a href="javascript:void(0)" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">管理</a>
+              <ul class="dropdown-menu">
+                <li><a th:href="@{/admin/users}" class="nav-link">ユーザ一覧</a></li>
+                <li><a th:href="@{/admin/users/edit}" class="nav-link">ユーザ編集</a></li>
+                <li><a th:href="@{/admin/users/logout}" class="nav-link">ログアウト</a></li>
+              </ul>
+            </li>
+          </ul>
+        </div>
+        
+      </div>
+    </nav>
+
+    <div class="container-fluid mt-3">
+      <div class="row">
+        <div class="col-sm-10 main mx-auto">
+		  <div th:if="${flash}" th:text="${flash.getMessage()}" th:class="${'alert alert-' + flash.getKey()}" role="alert"></div>
+        </div>
+        <div layout:fragment="content" class="col-sm-10 main mx-auto"></div>
+      </div>
+    </div>
+    <script th:src="@{/js/app.js}"></script>
+  </body>
+</html>
