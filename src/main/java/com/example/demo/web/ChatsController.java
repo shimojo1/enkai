@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.demo.common.CustomUser;
 import com.example.demo.common.DataNotFoundException;
 import com.example.demo.common.FlashData;
 import com.example.demo.entity.Chat;
@@ -38,26 +38,19 @@ public class ChatsController {
 	UserService userService;
 
 	@GetMapping(value = "talk/{eventId}")
-	public String talk(@PathVariable Integer eventId, Chat chat, Model model, RedirectAttributes ra, @AuthenticationPrincipal UserDetails user) {
+	public String talk(@PathVariable Integer eventId, Chat chat, Model model, RedirectAttributes ra, @AuthenticationPrincipal CustomUser user) {
 		List<Chat> chats = chatService.findAll();
-		User loginUser = null;
-		try {
-			loginUser = userService.findByEmail(user.getUsername());
-		} catch (DataNotFoundException e) {
-			FlashData flash = new FlashData().danger("該当データがありません");
-			ra.addFlashAttribute("flash", flash);
-			return "redirect:/admin/events/view/" + eventId;
-		}
+		User loginUser = user.getUser();
 		model.addAttribute("chats", chats);
 		model.addAttribute("user", loginUser);
 		return "chats/talk";
 	}
 
 	@PostMapping(value = "talk/{eventId}")
-	public String send(@PathVariable Integer eventId, @Valid Chat chat, BindingResult result, Model model, RedirectAttributes ra, @AuthenticationPrincipal UserDetails user) {
+	public String send(@PathVariable Integer eventId, @Valid Chat chat, BindingResult result, Model model, RedirectAttributes ra, @AuthenticationPrincipal CustomUser user) {
 		FlashData flash;
 		try {
-			User loginUser = userService.findByEmail(user.getUsername());
+			User loginUser = user.getUser();
 			chat.setUser(loginUser);
 			if (result.hasErrors()) {
 				List<Chat> chats = chatService.findAll();
