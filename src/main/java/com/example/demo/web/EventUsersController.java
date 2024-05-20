@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.demo.common.CustomUser;
 import com.example.demo.common.DataNotFoundException;
 import com.example.demo.common.FlashData;
 import com.example.demo.common.MaxCapacityReachedException;
@@ -36,7 +36,7 @@ public class EventUsersController {
 	UserService userService;
 
 	@GetMapping(value = "/create/{eventId}")
-	public String register(@PathVariable Integer eventId, Model model, RedirectAttributes ra,  @AuthenticationPrincipal UserDetails user) {
+	public String register(@PathVariable Integer eventId, Model model, RedirectAttributes ra,  @AuthenticationPrincipal CustomUser user) {
 		FlashData flash;
 		try {
 			Event event = eventService.findById(eventId);
@@ -45,7 +45,7 @@ public class EventUsersController {
 			if (participants >= event.getMaxParticipant()) {
 				throw new MaxCapacityReachedException();
 			}
-			User loginUser = userService.findByEmail(user.getUsername());
+			User loginUser = user.getUser();
 			EventUser newEventUser = new EventUser();
 			newEventUser.setEvent(event);
 			newEventUser.setUser(loginUser);
@@ -63,10 +63,10 @@ public class EventUsersController {
 	}
 
 	@GetMapping(value = "/delete/{eventId}")
-	public String delete(@PathVariable Integer eventId, Model model, RedirectAttributes ra, @AuthenticationPrincipal UserDetails user) {
+	public String delete(@PathVariable Integer eventId, Model model, RedirectAttributes ra, @AuthenticationPrincipal CustomUser user) {
 		FlashData flash;
 		try {
-			User loginUser = userService.findByEmail(user.getUsername());
+			User loginUser = user.getUser();
 			Integer userId = loginUser.getId();
 			eventUserService.deleteByEventIdAndUserId(eventId, userId);		
 			flash = new FlashData().success("イベントを辞退しました");

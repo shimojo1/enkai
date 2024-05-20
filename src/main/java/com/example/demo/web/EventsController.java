@@ -4,7 +4,6 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -14,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.example.demo.common.CustomUser;
 import com.example.demo.common.DataNotFoundException;
 import com.example.demo.common.FlashData;
 import com.example.demo.entity.Event;
@@ -38,7 +38,7 @@ public class EventsController {
 	UserService userService;
 
 	@GetMapping(path = {"/", ""})
-	public String list(Model model, @AuthenticationPrincipal UserDetails user) {
+	public String list(Model model, @AuthenticationPrincipal CustomUser user) {
 		if (user != null) {
 			return "redirect:/admin";
 		}
@@ -57,13 +57,10 @@ public class EventsController {
 	}
 	
 	@GetMapping(value = "/admin/events/mylist")
-	public String mylist(Model model, @AuthenticationPrincipal UserDetails user) {
+	public String mylist(Model model, @AuthenticationPrincipal CustomUser user) {
 		List<Event> events = null;
-		try {
-			User loginUser = userService.findByEmail(user.getUsername());
-			events = eventService.findByUserId(loginUser.getId());
-		} catch (DataNotFoundException e) {
-		}
+		User loginUser = user.getUser();
+		events = eventService.findByUserId(loginUser.getId());
 		model.addAttribute("events", events);
 		return "events/mylist";
 	}
@@ -134,7 +131,7 @@ public class EventsController {
 	}
 
 	@GetMapping(value = "/events/view/{id}")
-	public String view(@PathVariable Integer id, Model model, RedirectAttributes ra, @AuthenticationPrincipal UserDetails user) {
+	public String view(@PathVariable Integer id, Model model, RedirectAttributes ra, @AuthenticationPrincipal CustomUser user) {
 		if (user != null) {
 			return "redirect:/admin/events/view/" + id;
 		}
@@ -150,11 +147,11 @@ public class EventsController {
 	}
 	
 	@GetMapping(value = "/admin/events/view/{id}")
-	public String adminView(@PathVariable Integer id, Model model, RedirectAttributes ra, @AuthenticationPrincipal UserDetails user) {
+	public String adminView(@PathVariable Integer id, Model model, RedirectAttributes ra, @AuthenticationPrincipal CustomUser user) {
 		try {
 			Event event = eventService.findById(id);
 			model.addAttribute("event", event);
-			User loginUser = userService.findByEmail(user.getUsername());	
+			User loginUser = user.getUser();
 			EventUser eventUser = eventUserService.findByEventAndUser(event, loginUser);
 			Boolean isParticipated = eventUser != null;
 			model.addAttribute("isParticipated", isParticipated);
