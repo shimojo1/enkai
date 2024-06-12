@@ -1,12 +1,15 @@
 package com.example.demo.web;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,7 +26,9 @@ import com.example.demo.service.EventService;
 import com.example.demo.service.EventUserService;
 import com.example.demo.service.UserService;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Valid;
+import jakarta.validation.Validator;
 
 @Controller
 @RequestMapping("/")
@@ -37,7 +42,10 @@ public class EventsController {
 	@Autowired
 	UserService userService;
 
-	@GetMapping(path = {"/", ""})
+	@Autowired
+	public Validator validator;
+
+	@GetMapping(path = { "/", "" })
 	public String list(Model model, @AuthenticationPrincipal CustomUser user) {
 		if (user != null) {
 			return "redirect:/admin";
@@ -55,7 +63,7 @@ public class EventsController {
 		model.addAttribute("events", events);
 		return "events/list";
 	}
-	
+
 	@GetMapping(value = "/admin/events/mylist")
 	public String mylist(Model model, @AuthenticationPrincipal CustomUser user) {
 		List<Event> events = null;
@@ -68,6 +76,8 @@ public class EventsController {
 	@GetMapping(value = "/admin/events/create")
 	public String create(Event event, Model model) {
 		model.addAttribute("event", event);
+		Errors errors = new BeanPropertyBindingResult(event, "event");
+		model.addAttribute("errors", errors);
 		return "events/create";
 	}
 
@@ -75,12 +85,22 @@ public class EventsController {
 	 * 新規登録
 	 */
 	@PostMapping(value = "/admin/events/create")
-	public String register(@Valid Event event, BindingResult result, Model model, RedirectAttributes ra) {
+	public String register(Event event, BindingResult result, Model model, RedirectAttributes ra) {
 		FlashData flash;
+		Errors errors = new BeanPropertyBindingResult(event, "event");
 		try {
-			if (result.hasErrors()) {
+			// バリデーション結果を取得
+			Set<ConstraintViolation<Event>> errorResult = validator.validate(event);
+			for (ConstraintViolation<Event> violation : errorResult) {
+				errors.rejectValue(violation.getPropertyPath().toString(), "", violation.getMessage());
+			}
+			if (errors.hasErrors()) {
+				model.addAttribute("errors", errors);
 				return "events/create";
 			}
+			// if (result.hasErrors()) {
+			//	return "events/create";
+			//}
 			// 新規登録
 			eventService.save(event);
 			flash = new FlashData().success("新規作成しました");
@@ -88,6 +108,7 @@ public class EventsController {
 			System.out.println(e.getMessage());
 			flash = new FlashData().danger("処理中にエラーが発生しました");
 		}
+		model.addAttribute("errors", errors);
 		ra.addFlashAttribute("flash", flash);
 		return "redirect:/admin";
 	}
@@ -113,7 +134,8 @@ public class EventsController {
 	 * 更新
 	 */
 	@PostMapping(value = "/admin/events/edit/{id}")
-	public String update(@PathVariable Integer id, @Valid Event event, BindingResult result, Model model, RedirectAttributes ra) {
+	public String update(@PathVariable Integer id, @Valid Event event, BindingResult result, Model model,
+			RedirectAttributes ra) {
 		FlashData flash;
 		try {
 			if (result.hasErrors()) {
@@ -131,7 +153,8 @@ public class EventsController {
 	}
 
 	@GetMapping(value = "/events/view/{id}")
-	public String view(@PathVariable Integer id, Model model, RedirectAttributes ra, @AuthenticationPrincipal CustomUser user) {
+	public String view(@PathVariable Integer id, Model model, RedirectAttributes ra,
+			@AuthenticationPrincipal CustomUser user) {
 		if (user != null) {
 			return "redirect:/admin/events/view/" + id;
 		}
@@ -145,9 +168,10 @@ public class EventsController {
 		}
 		return "events/view";
 	}
-	
+
 	@GetMapping(value = "/admin/events/view/{id}")
-	public String adminView(@PathVariable Integer id, Model model, RedirectAttributes ra, @AuthenticationPrincipal CustomUser user) {
+	public String adminView(@PathVariable Integer id, Model model, RedirectAttributes ra,
+			@AuthenticationPrincipal CustomUser user) {
 		try {
 			Event event = eventService.findById(id);
 			model.addAttribute("event", event);

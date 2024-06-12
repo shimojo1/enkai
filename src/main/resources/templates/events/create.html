@@ -8,9 +8,9 @@
   <body>
     <div layout:fragment="content">
       <form th:action="@{/admin/events/create}" th:object="${event}" method="post">
-        <ul th:if="${#fields.hasErrors()}" class="alert alert-danger" role="alert">
-          <li th:each="err : ${#fields.errors('*')}">
-            <span th:text="${err}"></span>
+        <ul th:if="${errors.hasErrors()}" class="alert alert-danger" role="alert">
+          <li th:each="err : ${errors.getAllErrors()}">
+            <span th:text="${err.defaultMessage}"></span>
           </li>
         </ul>
         <h1 class="page-header">イベント新規登録</h1>
